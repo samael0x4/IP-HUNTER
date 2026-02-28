@@ -1,50 +1,29 @@
-![Shell Script](https://img.shields.io/badge/Bash-Shell_Script-green?style=for-the-badge&logo=gnu-bash)
-![Recon Tool](https://img.shields.io/badge/Category-Recon_Tool-red?style=for-the-badge)
-![Bug Bounty](https://img.shields.io/badge/Bug_Bounty-Ownership_Intelligence-black?style=for-the-badge)
+# 💀 IP-HUNTER v2.0
+### Smarter IP → Organization Attribution for Bug Bounty Hunters
+
+![Bash](https://img.shields.io/badge/Bash-Shell-green?style=for-the-badge&logo=gnu-bash)
+![Recon Tool](https://img.shields.io/badge/Category-Recon-red?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-# 💀 IP-HUNTER
-### Validate whether an IP likely belongs to a reportable organization or just cloud infra.
+---
 
-> Built for bug bounty hunters who verify ownership **before** reporting.
+## 🎯 What is IP-HUNTER?
+
+IP-HUNTER is a reconnaissance tool that helps determine whether an IP address likely belongs to a reportable organization or is just cloud infrastructure.
+
+Built to reduce false reports and improve ownership validation in bug bounty hunting.
 
 ---
 
-## 👁 What is IP-HUNTER?
+## 🚀 What’s New in v2.0
 
-IP-HUNTER is a reconnaissance utility that analyzes an IP address and determines whether it likely belongs to:
+- 🧠 Smart ownership scoring engine (0–100 confidence)
+- ☁ Automatic cloud provider detection
+- 🔎 SSL domain extraction
+- 🌐 Domain → IP resolution check
+- 📊 Clear classification output
+- 🛡 Better handling of cloud-hosted assets
 
-- 🟢 A real organization (potentially reportable)
-- 🟡 Cloud-hosted infrastructure (needs domain correlation)
-- 🔴 Random / unverified VM
-
-It automates ownership intelligence using:
-
-- WHOIS
-- Reverse DNS
-- SSL certificate inspection
-- HTTP title fetching
-- security.txt detection
-- ASN lookup (ipinfo)
-- Shodan API
-- Censys API
-
-Built in pure Bash. Lightweight. Fast. Recon-focused.
-
----
-
-## ⚡ Why This Tool Exists
-
-Most hunters exploit first and ask ownership later.
-
-That’s how reports get rejected.
-
-IP-HUNTER helps you:
-
-✔ Avoid reporting random cloud VMs  
-✔ Verify if IP maps to scoped asset  
-✔ Detect cloud vs dedicated infra  
-✔ Improve report credibility  
 
 ---
 
@@ -73,26 +52,17 @@ SHODAN_API_KEY="your_key"
 CENSYS_API_TOKEN="your_api_token"
 ```
 ## 🚀 Installation
+Make the installer executable:
 ```
-chmod +x ip-hunter.sh
+chmod +x install.sh
 ```
-Install globally:
+Run the installer:
 ```
-sudo mv ip-hunter.sh /usr/local/bin/ip-hunter
+./install.sh
 ```
-
-Now you can run from any directory:
+After installation, you can run IP-HUNTER globally from anywhere:
 ```
 ip-hunter <IP>
-```
-
-## 🧪 Usage 
-```
-./ip-hunter.sh 1.1.1.1
-```
-```
-Or if installed globally:
-ip-hunter 1.1.1.1
 ```
 
 ---
