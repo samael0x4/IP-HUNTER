@@ -58,7 +58,7 @@ sudo apt install whois dnsutils curl jq openssl
 
 ## 🔐 Clone & Configuration
 ```
-git clone https://github.com/yourusername/IP-HUNTER.git
+git clone https://github.com/samael0x4/IP-HUNTER.git
 cd IP-HUNTER
 ```
 Copy config template:
