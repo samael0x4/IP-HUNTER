@@ -1,3 +1,8 @@
+![Shell Script](https://img.shields.io/badge/Bash-Shell_Script-green?style=for-the-badge&logo=gnu-bash)
+![Recon Tool](https://img.shields.io/badge/Category-Recon_Tool-red?style=for-the-badge)
+![Bug Bounty](https://img.shields.io/badge/Bug_Bounty-Ownership_Intelligence-black?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+
 # 💀 IP-HUNTER
 ### Validate whether an IP likely belongs to a reportable organization or just cloud infra.
 
