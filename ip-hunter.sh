@@ -48,8 +48,9 @@ echo ""
 # =====================
 # Reverse DNS
 # =====================
+REVERSE=$(dig -x $IP +short)
 echo -e "${BLUE}[Reverse DNS]${RESET}"
-dig -x $IP +short
+echo "$REVERSE"
 echo ""
 
 # =====================
@@ -85,7 +86,9 @@ echo ""
 # =====================
 if [ ! -z "$IPINFO_TOKEN" ]; then
     echo -e "${BLUE}[ipinfo.io]${RESET}"
-    curl -s https://ipinfo.io/$IP?token=$IPINFO_TOKEN | jq '.org, .country'
+    IPINFO_DATA=$(curl -s https://ipinfo.io/$IP?token=$IPINFO_TOKEN)
+    echo "$IPINFO_DATA" | jq '.org, .country'
+    ORG=$(echo "$IPINFO_DATA" | jq -r '.org')
     echo ""
 fi
 
@@ -110,14 +113,70 @@ if [ ! -z "$CENSYS_API_TOKEN" ]; then
 fi
 
 # =====================
-# Basic Classification
+# Smart Classification v2.0
 # =====================
-echo -e "${MAGENTA}[Assessment]${RESET}"
 
-ORG=$(whois $IP | grep -i "Organization" | head -n1)
+echo -e "${MAGENTA}[Assessment v2.0]${RESET}"
 
-if echo "$ORG" | grep -qi "google\|amazon\|microsoft\|azure\|digitalocean\|ovh"; then
-    echo -e "${YELLOW}⚠ Cloud Hosted Infrastructure"
+SCORE=0
+
+# Extract SSL CN
+SSL_CN=$(echo "$SSL" | sed -n 's/.*CN=\([^,]*\).*/\1/p')
+
+# Check SSL existence
+if [ ! -z "$SSL_CN" ]; then
+    SCORE=$((SCORE+25))
+fi
+
+# Check if SSL CN looks generic cloud
+if echo "$SSL_CN" | grep -qi "googleusercontent\|amazonaws\|azure\|cloudfront"; then
+    SCORE=$((SCORE-10))
 else
-    echo -e "${GREEN}🟢 Potentially Reportable (Verify Domain Scope)"
+    if [ ! -z "$SSL_CN" ]; then
+        SCORE=$((SCORE+20))
+    fi
+fi
+
+# Domain resolution check
+if [ ! -z "$SSL_CN" ]; then
+    RESOLVED_IP=$(dig +short $SSL_CN | tail -n1)
+    if [ "$RESOLVED_IP" == "$IP" ]; then
+        SCORE=$((SCORE+20))
+        DOMAIN_MATCH="Yes"
+    else
+        DOMAIN_MATCH="No"
+    fi
+fi
+
+# ASN cloud detection
+if echo "$ORG" | grep -qi "google\|amazon\|microsoft\|azure\|digitalocean\|ovh"; then
+    SCORE=$((SCORE-10))
+fi
+
+# Reverse DNS generic cloud
+if echo "$REVERSE" | grep -qi "googleusercontent\|amazonaws\|azure"; then
+    SCORE=$((SCORE-10))
+fi
+
+# security.txt
+if [ "$SEC" == "200" ]; then
+    SCORE=$((SCORE+10))
+fi
+
+# HTTP Title exists
+if [ ! -z "$TITLE" ]; then
+    SCORE=$((SCORE+5))
+fi
+
+echo "Confidence Score: $SCORE / 100"
+echo ""
+
+if [ $SCORE -ge 80 ]; then
+    echo -e "${GREEN}🟢 Strong Organization-Owned Asset"
+elif [ $SCORE -ge 50 ]; then
+    echo -e "${YELLOW}🟡 Likely Organization-Owned (Cloud Hosted)"
+elif [ $SCORE -ge 30 ]; then
+    echo -e "\e[33m🟠 Needs Manual Verification"
+else
+    echo -e "${RED}🔴 Likely Random / Unverified VM"
 fi
