@@ -70,8 +70,7 @@ Edit config.conf and add your API keys:
 ```
 IPINFO_TOKEN="your_token"
 SHODAN_API_KEY="your_key"
-CENSYS_API_ID="your_id"
-CENSYS_API_SECRET="your_secret"
+CENSYS_API_TOKEN="your_api_token"
 ```
 ## 🚀 Installation
 ```
