@@ -99,12 +99,13 @@ if [ ! -z "$SHODAN_API_KEY" ]; then
 fi
 
 # =====================
-# CENSYS API
+# CENSYS API (Platform)
 # =====================
-if [ ! -z "$CENSYS_API_ID" ]; then
-    echo -e "${BLUE}[Censys]${RESET}"
-    curl -s -u "$CENSYS_API_ID:$CENSYS_API_SECRET" \
-    https://search.censys.io/api/v2/hosts/$IP | jq '.result.autonomous_system.name'
+if [ ! -z "$CENSYS_API_TOKEN" ]; then
+    echo -e "${BLUE}[Censys Platform]${RESET}"
+    curl -s \
+    -H "Authorization: Bearer $CENSYS_API_TOKEN" \
+    https://platform.censys.io/api/v1/hosts/$IP | jq '.result.autonomous_system.name'
     echo ""
 fi
 
