@@ -123,14 +123,15 @@ if [ ! -z "$SSL_CN" ]; then
     SCORE=$((SCORE+25))
 
     # Resolve domain back to IP
-    RESOLVED_IP=$(dig +short $SSL_CN | tail -n1)
-    if [ "$RESOLVED_IP" == "$IP" ]; then
-        DOMAIN_MATCH="Yes"
-        SCORE=$((SCORE+25))
-        echo -e "${GREEN}✔ Domain resolves back to target IP${RESET}"
-    else
-        echo -e "${YELLOW}⚠ Domain does not resolve directly to IP${RESET}"
-    fi
+    RESOLVED_IPS=$(dig +short $SSL_CN)
+
+if echo "$RESOLVED_IPS" | grep -q "$IP"; then
+    DOMAIN_MATCH="Yes"
+    SCORE=$((SCORE+25))
+    echo -e "${GREEN}✔ Domain resolves to target IP${RESET}"
+else
+    echo -e "${YELLOW}⚠ Domain does not resolve to target IP${RESET}"
+fi
 
     # Generic cloud cert check
     if echo "$SSL_CN" | grep -qi "googleusercontent\|amazonaws\|cloudfront"; then
