@@ -95,3 +95,12 @@ ip-hunter <IP>
 Or if installed globally:
 ip-hunter 1.1.1.1
 ```
+
+---
+
+## 👩‍💻 Author
+by `samael0x4` & `ALVIRA PARVEEN`  
+🔗 [LinkedIn](https://www.linkedin.com/in/alvira-parveen-78022536b)  
+🌐 [GitHub](https://github.com/Alvira-Parveen)
+
+---
