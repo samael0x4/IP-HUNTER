@@ -107,39 +107,74 @@ SCORE=0
 CLOUD_PROVIDER=""
 DOMAIN_MATCH="No"
 
-# Detect cloud provider
+# =========================
+# Detect Hosting Provider
+# =========================
 if echo "$ORG" | grep -qi "google"; then CLOUD_PROVIDER="Google Cloud"; fi
 if echo "$ORG" | grep -qi "amazon"; then CLOUD_PROVIDER="Amazon AWS"; fi
-if echo "$ORG" | grep -qi "microsoft"; then CLOUD_PROVIDER="Azure"; fi
+if echo "$ORG" | grep -qi "microsoft"; then CLOUD_PROVIDER="Microsoft Azure"; fi
 if echo "$ORG" | grep -qi "oracle"; then CLOUD_PROVIDER="Oracle Cloud"; fi
+if echo "$ORG" | grep -qi "digitalocean"; then CLOUD_PROVIDER="DigitalOcean"; fi
+
+# =========================
+# Ownership Breakdown
+# =========================
+echo -e "${CYAN}🧠 Ownership Breakdown${RESET}"
+echo ""
+
+# Hosting Layer
+echo -e "${BLUE}☁ Hosting Layer${RESET}"
+
+if [ ! -z "$ORG" ]; then
+    echo "ASN/Org = $ORG"
+fi
+
+if [ ! -z "$REVERSE" ]; then
+    echo "Reverse DNS = $REVERSE"
+fi
 
 if [ ! -z "$CLOUD_PROVIDER" ]; then
-    echo -e "${YELLOW}☁ Hosting Provider Detected:${RESET} $CLOUD_PROVIDER"
+    echo -e "→ Infrastructure hosted on ${YELLOW}$CLOUD_PROVIDER${RESET}"
+    SCORE=$((SCORE-10))
 fi
 
-# SSL domain detection
+echo ""
+
+# =========================
+# Domain Attribution
+# =========================
+echo -e "${BLUE}🌐 Domain Attribution${RESET}"
+
 if [ ! -z "$SSL_CN" ]; then
-    echo -e "${CYAN}🔎 Detected Domain:${RESET} $SSL_CN"
+    echo "SSL CN = $SSL_CN"
     SCORE=$((SCORE+25))
 
-    # Resolve domain back to IP
     RESOLVED_IPS=$(dig +short $SSL_CN)
 
-if echo "$RESOLVED_IPS" | grep -q "$IP"; then
-    DOMAIN_MATCH="Yes"
-    SCORE=$((SCORE+25))
-    echo -e "${GREEN}✔ Domain resolves to target IP${RESET}"
-else
-    echo -e "${YELLOW}⚠ Domain does not resolve to target IP${RESET}"
-fi
+    if echo "$RESOLVED_IPS" | grep -q "$IP"; then
+        DOMAIN_MATCH="Yes"
+        SCORE=$((SCORE+25))
+        echo -e "${GREEN}✔ Domain resolves to target IP${RESET}"
+        echo "→ Likely organization-managed instance"
+    else
+        echo -e "${YELLOW}⚠ Domain does not resolve to target IP${RESET}"
+    fi
 
-    # Generic cloud cert check
+    # Generic cloud certificate penalty
     if echo "$SSL_CN" | grep -qi "googleusercontent\|amazonaws\|cloudfront"; then
         SCORE=$((SCORE-15))
     else
         SCORE=$((SCORE+20))
     fi
+else
+    echo "No SSL domain detected"
 fi
+
+echo ""
+
+# =========================
+# Additional Signals
+# =========================
 
 # Reverse DNS cloud penalty
 if echo "$REVERSE" | grep -qi "googleusercontent\|amazonaws\|azure"; then
@@ -156,17 +191,23 @@ if [ ! -z "$TITLE" ]; then
     SCORE=$((SCORE+5))
 fi
 
-echo ""
-echo -e "${MAGENTA}Confidence Score:${RESET} $SCORE / 100"
+# Prevent negative score
+if [ $SCORE -lt 0 ]; then
+    SCORE=0
+fi
+
+echo -e "${MAGENTA}📊 Confidence Score:${RESET} $SCORE / 100"
 echo ""
 
+# =========================
 # Final Classification
+# =========================
 if [ $SCORE -ge 80 ]; then
-    echo -e "${GREEN}🟢 Strong Organization-Owned Asset"
+    echo -e "${GREEN}🟢 Strong Organization-Owned Asset${RESET}"
 elif [ $SCORE -ge 55 ]; then
-    echo -e "${YELLOW}🟡 Likely Organization-Owned (Cloud Hosted)"
+    echo -e "${YELLOW}🟡 Likely Organization-Owned (Cloud Hosted)${RESET}"
 elif [ $SCORE -ge 35 ]; then
-    echo -e "\e[33m🟠 Needs Manual Verification"
+    echo -e "\e[33m🟠 Needs Manual Verification${RESET}"
 else
-    echo -e "${RED}🔴 Likely Random / Unverified VM"
+    echo -e "${RED}🔴 Likely Random / Unverified VM${RESET}"
 fi
